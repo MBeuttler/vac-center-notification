@@ -61,7 +61,7 @@ def get_all_vac_centers():
 
 def list_vac_centers():
     vac_centers = get_all_vac_centers()
-    json.dumps(vac_centers, indent=4, sort_keys=True, ensure_ascii=False)
+    print(json.dumps(vac_centers, indent=4, sort_keys=True, ensure_ascii=False))
 
 
 def search_appointments(vac_center_names=[]):
