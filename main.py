@@ -64,7 +64,10 @@ def list_vac_centers():
     print(json.dumps(vac_centers, indent=4, sort_keys=True, ensure_ascii=False))
 
 
-def search_appointments(vac_center_names=[]):
+def search_appointments(vac_center_zip_codes=None):
+
+    if vac_center_zip_codes is None:
+        vac_center_zip_codes = []
 
     appointment_path = 'rest/suche/termincheck?plz='
     appointment_key = 'termineVorhanden'
@@ -82,7 +85,7 @@ def search_appointments(vac_center_names=[]):
         for vac_center in vac_centers[state]:
 
             # only look up vac centers of interest
-            if len(vac_center_names) > 0 and vac_center['Zentrumsname'] not in vac_center_names:
+            if len(vac_center_zip_codes) > 0 and vac_center['PLZ'] not in vac_center_zip_codes:
                 continue
 
             try:
@@ -114,8 +117,8 @@ def search_appointments(vac_center_names=[]):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Check `impfterminservice` for free appointments')
-    parser.add_argument('--vac-centers', dest='vac_centers', type=str,
-                        help='comma seperated list of `Zentrumsname` or ALL. Use --list to get a list of all possible values.')
+    parser.add_argument('--zip-codes', dest='vac_centers', type=str,
+                        help='comma seperated list of vaccination center zip-codes (or `ALL`).  Use --list to get a list of all possible values.')
     parser.add_argument('--list', dest='show_list', action='store_true',
                         help='List all possible values for --vac-centers')
     parser.add_argument('--email-from', dest='email_from', type=str, required=True,
@@ -139,6 +142,8 @@ if __name__ == "__main__":
 
     if args.show_list:
         list_vac_centers()
+
+        sys.exit()
 
     if args.vac_centers == 'ALL':
         vac_centers_of_interest = []
