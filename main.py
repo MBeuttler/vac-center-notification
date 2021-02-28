@@ -120,7 +120,7 @@ if __name__ == "__main__":
     parser.add_argument('--zip-codes', dest='vac_centers', type=str,
                         help='comma seperated list of vaccination center zip-codes (or `ALL`).  Use --list to get a list of all possible values.')
     parser.add_argument('--list', dest='show_list', action='store_true',
-                        help='List all possible values for --vac-centers')
+                        help='List all vac centers and zip-codes')
     parser.add_argument('--email-from', dest='email_from', type=str, required=True,
                         help='Sending e-mail address')
     parser.add_argument('--email-to', dest='email_to', type=str, required=True,
