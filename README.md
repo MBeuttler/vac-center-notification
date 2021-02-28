@@ -25,7 +25,7 @@ optional arguments:
                         comma seperated list of vaccination center zip-codes
                         (or `ALL`). Use --list to get a list of all possible
                         values.
-  --list                List all possible values for --vac-centers
+  --list                List all vac centers and zip-codes
   --email-from EMAIL_FROM
                         Sending e-mail address
   --email-to EMAIL_TO   Receiving e-mail address
