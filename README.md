@@ -22,13 +22,13 @@ Check `impfterminservice` for free appointments
 optional arguments:
   -h, --help            show this help message and exit
   --zip-codes VAC_CENTERS
-                        comma seperated list of vaccination center zip-codes
+                        comma separated list of vaccination center zip-codes
                         (or `ALL`). Use --list to get a list of all possible
                         values.
   --list                List all vac centers and zip-codes
   --email-from EMAIL_FROM
                         Sending e-mail address
-  --email-to EMAIL_TO   Receiving e-mail address
+  --email-to EMAIL_TO   Comma separated list of receiving e-mail addresses
   --smtp-user SMTP_USER
                         login name for smtp server
   --smtp-password SMTP_PASSWORD

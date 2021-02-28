@@ -15,6 +15,8 @@ def send_mail(content, username, password, sender_email, receiver_email, smtp_se
     message["From"] = username
     message["To"] = receiver_email
 
+    receivers = receiver_email.split(',')
+
     # Create the plain-text and HTML version of your message
     email_text = json.dumps(content, indent=4, sort_keys=True, ensure_ascii=False)
     html = json2html.convert(json=content)
@@ -37,13 +39,13 @@ def send_mail(content, username, password, sender_email, receiver_email, smtp_se
         server.ehlo()  # Can be omitted
         server.login(sender_email, password)
         server.sendmail(
-            sender_email, receiver_email, message.as_string()
+            sender_email, receivers, message.as_string()
         )
     else:
         with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
             server.login(sender_email, password)
             server.sendmail(
-                sender_email, receiver_email, message.as_string()
+                sender_email, receivers, message.as_string()
             )
 
 
@@ -102,6 +104,8 @@ def search_appointments(vac_center_zip_codes=None):
                 r = requests.get(url=appointment_url, timeout=5, headers=headers)
                 appointment_response = r.json()
 
+                vac_center['Termine'] = appointment_response
+
                 if appointment_key not in appointment_response or appointment_response[appointment_key]:
                     print('{}-{}'.format(vac_center['Bundesland'], vac_center['Zentrumsname']))
                     free_appointments.append(vac_center)
@@ -118,13 +122,13 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Check `impfterminservice` for free appointments')
     parser.add_argument('--zip-codes', dest='vac_centers', type=str,
-                        help='comma seperated list of vaccination center zip-codes (or `ALL`).  Use --list to get a list of all possible values.')
+                        help='comma separated list of vaccination center zip-codes (or `ALL`).  Use --list to get a list of all possible values.')
     parser.add_argument('--list', dest='show_list', action='store_true',
                         help='List all vac centers and zip-codes')
     parser.add_argument('--email-from', dest='email_from', type=str, required=True,
                         help='Sending e-mail address')
     parser.add_argument('--email-to', dest='email_to', type=str, required=True,
-                        help='Receiving e-mail address')
+                        help='Comma separated list of receiving e-mail addresses')
     parser.add_argument('--smtp-user', dest='smtp_user', type=str, required=True,
                         help='login name for smtp server')
     parser.add_argument('--smtp-password', dest='smtp_password', type=str, required=True,
