@@ -12,18 +12,19 @@ pip install -r requirements.txt
 
 # HOW TO USE
 ```bash
-usage: main.py [-h] [--vac-centers VAC_CENTERS] [--list] --email-from
-               EMAIL_FROM --email-to EMAIL_TO --smtp-user SMTP_USER
-               --smtp-password SMTP_PASSWORD [--smtp-server SMTP_SERVER]
+usage: main.py [-h] [--zip-codes VAC_CENTERS] [--list] --email-from EMAIL_FROM
+               --email-to EMAIL_TO --smtp-user SMTP_USER --smtp-password
+               SMTP_PASSWORD [--smtp-server SMTP_SERVER]
                [--smtp-port SMTP_PORT] [--start-tls START_TLS] [--always-send]
 
 Check `impfterminservice` for free appointments
 
 optional arguments:
   -h, --help            show this help message and exit
-  --vac-centers VAC_CENTERS
-                        comma seperated list of `Zentrumsname`. Use --list to
-                        get a list of all possible values.
+  --zip-codes VAC_CENTERS
+                        comma seperated list of vaccination center zip-codes
+                        (or `ALL`). Use --list to get a list of all possible
+                        values.
   --list                List all possible values for --vac-centers
   --email-from EMAIL_FROM
                         Sending e-mail address
@@ -40,6 +41,4 @@ optional arguments:
                         If start tls should be used. Default is ssl
   --always-send         By default emails are only send if free appointments
                         are found
-
-Process finished with exit code 0
 ```
