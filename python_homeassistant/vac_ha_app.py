@@ -155,7 +155,7 @@ class VacCrawler(hass.Hass):
 
     def run_callback(self, kwargs):
         # Call to Home Assistant to turn the porch light on
-        self.log("run hourly callback: {}".format(self.args['vac_centers']))
+        self.log("run callback: {}".format(self.args['vac_centers']))
 
         if self.args['vac_centers'] is None or len(self.args['vac_centers']) == 0:
             vac_centers_of_interest = []
