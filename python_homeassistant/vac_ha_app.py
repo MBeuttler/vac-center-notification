@@ -167,7 +167,7 @@ class VacCrawler(hass.Hass):
 
         if len(appointments) > 0 or self.args['always_send']:
             self.send_mail({
-                'Datum': datetime.now().isoformat(),
+                'Datum': datetime.datetime.now().isoformat(),
                 'Überwachte Impfzentren': vac_centers_of_interest,
                 'Impfzentren mit freien Terminen': appointments
             },
