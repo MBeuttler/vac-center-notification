@@ -64,16 +64,22 @@ class VacCrawler(hass.Hass):
 
         return r.json()
 
-    def list_vac_centers(self):
-        vac_centers = self.get_all_vac_centers()
-        print(json.dumps(vac_centers, indent=4, sort_keys=True, ensure_ascii=False))
+    def get_vaccination_list(self, base_url):
+        path = "/assets/static/its/vaccination-list.json"
+        headers = {
+            'cache-control': "no-cache",
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0'
+        }
 
-    def search_appointments(self, vac_center_zip_codes=None):
+        r = requests.get(url=base_url + path, timeout=5, headers=headers)
 
+        return r.json()
+
+    def search_appointments(self, vac_center_zip_codes=None, rq_qualifications=None):
         if vac_center_zip_codes is None:
             vac_center_zip_codes = []
 
-        appointment_path = 'rest/suche/termincheck?plz='
+        appointment_path = 'rest/suche/termincheck?'
         appointment_key = 'termineVorhanden'
 
         headers = {
@@ -95,48 +101,69 @@ class VacCrawler(hass.Hass):
                 try:
                     # skip vac centers that don't provide the needed keys (Hessen and NRW do have their own website)
                     if 'URL' not in vac_center or len(vac_center['URL']) == 0:
-                        self.log('Missing URL: Skipping {}'.format(vac_center))
+                        print('Missing URL: Skipping {}'.format(vac_center))
                         continue
                     # skip vac centers that don't provide the needed keys (Hessen and NRW do have their own website)
                     if 'PLZ' not in vac_center or len(vac_center['PLZ']) == 0:
-                        self.log('Missing PLZ: Skipping {}'.format(vac_center))
+                        print('Missing PLZ: Skipping {}'.format(vac_center))
                         continue
 
-                    appointment_url = '{0}{1}{2}'.format(vac_center['URL'], appointment_path, vac_center['PLZ'])
-                    r = requests.get(url=appointment_url, timeout=5, headers=headers)
-                    appointment_response = r.json()
+                    vaccination_list = self.get_vaccination_list(vac_center['URL'])
 
-                    vac_center['Termine'] = appointment_response
+                    if rq_qualifications is None or len(rq_qualifications) <= 0:
+                        qualifications = ','.join(vaccination['qualification'] for vaccination in vaccination_list)
+                    else:
+                        qualifications = rq_qualifications
 
-                    if appointment_key not in appointment_response or appointment_response[appointment_key]:
-                        self.log('{}-{}'.format(vac_center['Bundesland'], vac_center['Zentrumsname']))
-                        self.log(appointment_response)
+                    vac_center_has_appointments = False
+                    for qa in qualifications.split(','):
+                        qualification_name = [vaccination['name'] for vaccination in vaccination_list if
+                                              vaccination['qualification'] == qa]
+
+                        appointment_url = '{0}{1}plz={2}&leistungsmerkmale={3}'.format(
+                            vac_center['URL'], appointment_path, vac_center['PLZ'], qa)
+
+                        r = requests.get(url=appointment_url, timeout=5, headers=headers)
+                        appointment_response = r.json()
+
+                        vac_center[qa] = {
+                            'Impfstoff': qualification_name,
+                            'Termine Vorhanden': appointment_response['termineVorhanden']
+                        }
+
+                        if appointment_key in appointment_response and appointment_response[appointment_key]:
+                            print('{}-{}'.format(vac_center['Bundesland'], vac_center['Zentrumsname'],
+                                                 qualification_name))
+                            vac_center_has_appointments = True
+
+                    if vac_center_has_appointments:
                         free_appointments.append(vac_center)
+
                 except:
-                    self.log("Unexpected error:", sys.exc_info()[0])
+                    print("Unexpected error:", sys.exc_info()[0])
 
         if len(free_appointments) <= 0:
-            self.log('No free appointments found')
+            print('No free appointments found')
 
         return free_appointments
 
     # initialize() function which will be called at startup and reload
     def initialize(self):
         self.log("VAC HA App Running")
-        time = datetime.time(0, 45, 0)
-        self.run_hourly(self.run_callback, time, random_start=-10, random_end=10)
+        time = datetime.datetime.now()
+        self.run_every(self.run_callback, time, interval=self.args['interval'], random_start=-60*5, random_end=60*5)
 
     def run_callback(self, kwargs):
         # Call to Home Assistant to turn the porch light on
         self.log("run hourly callback: {}".format(self.args['vac_centers']))
 
-        if self.args['vac_centers'] == 'ALL':
+        if self.args['vac_centers'] is None or len(self.args['vac_centers']) == 0:
             vac_centers_of_interest = []
         else:
             vac_centers_of_interest = [vac_center.strip() for vac_center in self.args['vac_centers'].split(',')]
 
         # parse website
-        appointments = self.search_appointments(vac_centers_of_interest)
+        appointments = self.search_appointments(vac_centers_of_interest, self.args['qualifications'])
 
         if len(appointments) > 0 or self.args['always_send']:
             self.send_mail({

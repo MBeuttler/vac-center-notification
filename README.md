@@ -16,10 +16,12 @@ pip install -r requirements.txt
 
 ## How to use
 ```bash
-usage: find_vac_appointments.py [-h] [--zip-codes VAC_CENTERS] [--list]
-                                --email-from EMAIL_FROM --email-to EMAIL_TO
-                                --smtp-user SMTP_USER --smtp-password
-                                SMTP_PASSWORD [--smtp-server SMTP_SERVER]
+usage: find_vac_appointments.py [-h] [--zip-codes VAC_CENTERS]
+                                [--qualifications REQUESTED_QUALIFICATIONS]
+                                [--list] [--list-qualifications] --email-from
+                                EMAIL_FROM --email-to EMAIL_TO --smtp-user
+                                SMTP_USER --smtp-password SMTP_PASSWORD
+                                [--smtp-server SMTP_SERVER]
                                 [--smtp-port SMTP_PORT]
                                 [--start-tls START_TLS] [--always-send]
 
@@ -28,10 +30,15 @@ Check `impfterminservice` for free appointments
 optional arguments:
   -h, --help            show this help message and exit
   --zip-codes VAC_CENTERS
-                        comma separated list of vaccination center zip-codes
-                        (or `ALL`). Use --list to get a list of all possible
+                        comma separated list of vaccination center zip-codes.
+                        Use --list to get a list of all possible values.
+  --qualifications REQUESTED_QUALIFICATIONS
+                        comma separated list of needed qualifications. Use
+                        --list-qualifications to get a list of all possible
                         values.
   --list                List all vac centers and zip-codes
+  --list-qualifications
+                        List all qualifications
   --email-from EMAIL_FROM
                         Sending e-mail address
   --email-to EMAIL_TO   Comma separated list of receiving e-mail addresses
